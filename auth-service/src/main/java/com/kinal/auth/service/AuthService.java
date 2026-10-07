@@ -1,6 +1,7 @@
 package com.kinal.auth.service;
 
 import com.kinal.auth.dto.request.LoginRequest;
+import com.kinal.auth.dto.request.RegisterRequest;
 import com.kinal.auth.dto.response.AuthResponse;
 import com.kinal.auth.dto.response.UserInternalResponse;
 import com.kinal.auth.exception.BusinessRuleException;
@@ -19,7 +20,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RestClient restClient;
 
-    public AuthService(JwtProvider jwtProvider, 
+    public AuthService(JwtProvider jwtProvider,
                        PasswordEncoder passwordEncoder,
                        @Value("${application.user-service.url}") String userServiceUrl) {
         this.jwtProvider = jwtProvider;
@@ -36,17 +37,13 @@ public class AuthService {
             throw new BadCredentialsException("Credenciales inválidas");
         }
 
-        // 3. (Opcional) Verificar que el usuario no esté sancionado para loguearse
-        // En este proyecto dejaremos loguearse a los sancionados (para que puedan ver su historial),
-        // el bloqueo de préstamos se hará en el loan-service.
-        
-        // 4. Generar JWT
+        // 3. Generar JWT
         String token = jwtProvider.generateToken(user);
-        
+
         return new AuthResponse(token, "Bearer");
     }
 
-    public String register(com.kinal.auth.dto.request.RegisterRequest request) {
+    public String register(RegisterRequest request) {
         return restClient.post()
                 .uri("/api/v1/usuarios/internal/register")
                 .body(request)
